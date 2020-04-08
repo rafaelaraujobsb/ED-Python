@@ -38,7 +38,7 @@ def subsets(conjunto: list, matriz_resposta: list, capacidade: int) -> list:
         subconjunto = set()
         add = subconjunto.add
 
-        while coluna != 0:
+        while coluna >= 0 and linha >= 0:
             if (coluna - conjunto[linha-1]) > 0 and coluna == capacidade:
                 coluna -= conjunto[linha-1]
                 linha -= 1
@@ -91,24 +91,56 @@ def subset_sum(conjunto: list, capacidade: int) -> list:
     return matriz_resposta
 
 
+def subsetsum_backtracking(conjunto: list, soma: int, selecao: list, resultados: list, pos: int = 0):
+    """ Verifica se a soma existe no conjunto e guarda todas as possibilidades
+
+    Foi usado a técninca de backtracking
+
+    Parameters
+    ----------
+    conjunto: list
+        lista com os valores do conjunto
+    soma: int
+        soma procurada
+    selecao: list
+        lista para armazena o subconjunto
+    resultados: list
+        lista para armazenar os resultados
+    pos: int
+        posição do valor que será acessado
+    """
+    if soma == 0:
+        resultados.append(set(selecao))
+    elif pos < len(conjunto):
+        selecao.append(conjunto[pos])
+        subsetsum_backtracking(conjunto, soma - conjunto[pos], selecao, resultados, pos + 1)
+        selecao.pop()
+        subsetsum_backtracking(conjunto, soma, selecao, resultados, pos + 1)
+
+
 if __name__ == "__main__":
     conjunto = list(map(int, input("Digite os valores do conjunto separado por espaço: ").split()))
     capacidade = int(input("Soma: "))
+    tecninca = int(input("Qual algoritmo?\n1 - DP\n2 - Backtracking\nOpção (1/2): "))
     todos = input("Mostrar todos os encontrados (s/n)? ")
 
-    matriz_resposta = subset_sum(conjunto, capacidade)
-
-    # for linha in matriz_resposta:
-    #     print(linha)
-
-    print("="*5)
-
-    if matriz_resposta[len(conjunto)][capacidade]:
-        print("SOMA ENCONTRADA")
-        subconjuntos = subsets(conjunto, matriz_resposta, capacidade)
-        if todos == "s":
-            print("SubConjuntos: ", subconjuntos)
-        else:
-            print("SubConjunto: ", subconjuntos[0])
+    subconjuntos = []
+    if tecninca == 1:
+        matriz_resposta = subset_sum(conjunto, capacidade)
+        if matriz_resposta[len(conjunto)][capacidade]:
+            subconjuntos = subsets(conjunto, matriz_resposta, capacidade)
+    elif tecninca == 2:
+        subsetsum_backtracking(conjunto, capacidade, [], subconjuntos)
     else:
-        print("SOMA NÃO ENCONTRADA")
+        print("Opção inválida!")
+
+    if 1 <= tecninca <= 2:
+        print("="*5)
+        if subconjuntos:
+            print("SOMA ENCONTRADA")
+            if todos == "s":
+                print("SubConjuntos: ", subconjuntos)
+            else:
+                print("SubConjunto: ", subconjuntos[0])
+        else:
+            print("SOMA NÃO ENCONTRADA")
